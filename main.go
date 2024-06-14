@@ -107,9 +107,16 @@ func buildMainScreen(w fyne.Window) fyne.CanvasObject {
 
 	setTempButton := widget.NewButton("Set", func() {
 		temp, err := strconv.ParseFloat(targetTempEntry.Text, 64)
+		fmt.Println(room.WorkStatus)
 		if err == nil {
-			uiUpdate <- func() {
-				targetTemperature.Set(temp)
+			if (room.WorkStatus == "Cool" && temp >= 18 && temp <= 25) || (room.WorkStatus == "Warm" && temp <= 30 && temp >= 25) {
+				uiUpdate <- func() {
+					targetTemperature.Set(temp)
+				}
+			} else {
+				uiUpdate <- func() {
+					dialog.ShowInformation("Invalid Target Temperature", "Target temperature should be 18~25 when cooling, 25~30 when warming", w)
+				}
 			}
 		} else {
 			uiUpdate <- func() {
