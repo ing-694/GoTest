@@ -19,7 +19,7 @@ type LoginResponse struct {
 	Data    struct {
 		Mode               string  `json:"mode"`
 		DefaultTemperature float64 `json:"defaultTemp"`
-		refreshRate        int     `json:"refreshRate"`
+		RefreshRate        int     `json:"refreshRate"`
 		Token              string  `json:"token"`
 	} `json:"data"`
 }
