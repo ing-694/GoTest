@@ -29,6 +29,8 @@ var windSpeed binding.String
 var workStatus binding.String
 var ifWind binding.Bool
 var envTempetaure binding.Float
+var cost binding.Float
+var refreshSpeed binding.Int
 
 func main() {
 	// 初始化Fyne应用和窗口
@@ -73,6 +75,8 @@ func buildLoginScreen(w fyne.Window) fyne.CanvasObject {
 			workStatus = binding.BindString(&room.Mode)
 			ifWind = binding.BindBool(&room.IfWind)
 			envTempetaure = binding.BindFloat(&room.EnvTemperature)
+			cost = binding.NewFloat()
+			refreshSpeed = binding.NewInt()
 
 			uiUpdate <- func() {
 				w.SetContent(buildMainScreen(w))
@@ -107,6 +111,8 @@ func buildMainScreen(w fyne.Window) fyne.CanvasObject {
 	targetTemperatureLabel := widget.NewLabelWithData(binding.FloatToStringWithFormat(targetTemperature, "%.2f"))
 	envTempetaureLabel := widget.NewLabelWithData(binding.FloatToStringWithFormat(envTempetaure, "%.2f"))
 	ifWindLabel := widget.NewLabelWithData(binding.BoolToString(ifWind))
+	costLabel := widget.NewLabelWithData(binding.FloatToStringWithFormat(cost, "%.2f"))
+	refreshSpeedLabel := widget.NewLabelWithData(binding.IntToString(refreshSpeed))
 
 	targetTempEntry := widget.NewEntry()
 	targetTempEntry.SetPlaceHolder("Enter Target Temperature")
@@ -147,6 +153,8 @@ func buildMainScreen(w fyne.Window) fyne.CanvasObject {
 			widget.NewFormItem("Wind Speed", windSpeedLabel),
 			widget.NewFormItem("If Wind", ifWindLabel),
 			widget.NewFormItem("Env Temperature", envTempetaureLabel),
+			widget.NewFormItem("Refresh Speed", refreshSpeedLabel),
+			widget.NewFormItem("Cost", costLabel),
 		),
 	)
 	staticDataBox := container.NewVBox(
@@ -188,17 +196,19 @@ func buildMainScreen(w fyne.Window) fyne.CanvasObject {
 }
 
 func reportStatusPeriodically(room *Room.Room, quit chan struct{}) {
-	ticker1 := time.NewTicker(3 * time.Second / time.Duration(RefreshSpeed))
+	ticker1 := time.NewTicker(time.Duration(RefreshSpeed) * time.Second)
 	defer ticker1.Stop()
 	for {
 		select {
 		case <-ticker1.C:
-			err, mode, refreshSpeed := Room.ReportStatus(room.Mode, room.Temperature)
+			mode, refreshSpeed_, cost_, err := Room.ReportStatus(room.Mode, room.Temperature, room.WindSpeed)
+			cost.Set(cost_)
+			refreshSpeed.Set(refreshSpeed_)
 			if err != nil {
 				fmt.Println("ReportStatus error:", err)
 			} else {
-				if refreshSpeed != RefreshSpeed {
-					RefreshSpeed = refreshSpeed
+				if refreshSpeed_ != RefreshSpeed {
+					RefreshSpeed = refreshSpeed_
 					ticker1.Stop()
 					ticker1 = time.NewTicker(3 * time.Second / time.Duration(RefreshSpeed))
 				}
