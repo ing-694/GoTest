@@ -62,7 +62,7 @@ func (room *Room) CheckIfWind() bool {
 // 检查温度是否已超出目标温度范围
 func (room *Room) CheckTemperatureOut() bool {
 	diff := room.Temperature - room.TargetTemperature
-	if (room.Mode == "Cool" && diff > 1) || (room.Mode == "Heat" && diff < -1) {
+	if (room.Mode == "Cool" && diff > 1) || (room.Mode == "Warm" && diff < -1) {
 		return true
 	} else {
 		return false
@@ -71,7 +71,7 @@ func (room *Room) CheckTemperatureOut() bool {
 
 // 检查温度是否已达到目标温度
 func (room *Room) CheckTemperatureCorrect() bool {
-	if (room.Mode == "Cool" && room.Temperature <= room.TargetTemperature) || (room.Mode == "Heat" && room.Temperature >= room.TargetTemperature) {
+	if (room.Mode == "Cool" && room.Temperature <= room.TargetTemperature) || (room.Mode == "Warm" && room.Temperature >= room.TargetTemperature) {
 		return true
 	} else {
 		return false

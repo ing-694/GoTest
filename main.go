@@ -204,6 +204,9 @@ func reportStatusPeriodically(room *Room.Room, quit chan struct{}) {
 				}
 				if room.Mode != mode {
 					room.Mode = mode
+					if room.IfReq {
+						room.StopWind()
+					}
 				}
 			}
 		case <-quit:
